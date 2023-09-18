@@ -1,38 +1,40 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Audio.hpp>
-#include <SFML/Network.hpp>
-#include <iostream>
-#include <ctime>
+
+#include <map>
+#include "Player.h"
 
 
 class Game
 {
 private:
-	sf::VideoMode videomode;
+
+	//Window
 	sf::RenderWindow* window; 
 
-	bool endGame;
-	
-	void initVariables();
-	void initvindow();
+	//Resources
+	std::map<std::string,sf::Texture*> textures;
 
-	sf::Event sfmlEvent;	
+	//Player
+	Player* player;	 
+
+	//Private functions
+	void initwindow();
+	void initTexture();
+
+	void initPlayer();
 
 public:
 	//constructor and destructor
-	Game();
-	~Game();
+	Game(); 
+	virtual ~Game();
 
 	//functions
 
-	const bool running() const;
+	void run();
 
-	void pollEvents(); 
-
+	void updatePollEvents();
+	void updateInput();
 	void update();
 	void render();
 };

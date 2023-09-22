@@ -153,25 +153,40 @@
   <ItemGroup>
     <ClCompile Include="Air.cpp" />
     <ClCompile Include="AnimatedAssets.cpp" />
+    <ClCompile Include="BossEnemy.cpp" />
+    <ClCompile Include="CommonEnemy.cpp" />
     <ClCompile Include="Earth.cpp" />
+    <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="FastEnemy.cpp" />
     <ClCompile Include="Fire.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Korra.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Projectiles.cpp" />
+    <ClCompile Include="SpeedsterEnemy.cpp" />
     <ClCompile Include="Water.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Air.h" />
     <ClInclude Include="AnimatedAssets.h" />
+    <ClInclude Include="BossEnemy.h" />
+    <ClInclude Include="CommonEnemy.h" />
     <ClInclude Include="Earth.h" />
+    <ClInclude Include="Enemy.h" />
+    <ClInclude Include="FastEnemy.h" />
     <ClInclude Include="Fire.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Projectiles.h" />
+    <ClInclude Include="ProjectileType.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="SpeedsterEnemy.h" />
     <ClInclude Include="Water.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Korra.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

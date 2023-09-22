@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ANIMOWANEASSETY_H
+#define ANIMOWANEASSETY_H
 
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -10,15 +11,20 @@
 #include <random>
 #include <iostream>
 #include <vector>
+#include <memory>
+#include <time.h>
+
+#include "ProjectileType.h"
 
 class AnimatedAssets: public sf::Sprite 
 {
 public:
-	AnimatedAssets();		//starting position || veliocity  x->width  y->height
+	AnimatedAssets();		
 	virtual ~AnimatedAssets();
 
-	void update();
-	//virtual void render(sf::RenderWindow& target)=0
+
+	//Acessors
+	const sf::Vector2f& getPos();
 
 protected:
 	sf::RenderWindow window_ch;                          //12-16 line _ch->character   _p for projectiles   
@@ -33,3 +39,4 @@ protected:
 	//virtual void handleColission() = 0;								//colission handling *in process*
 };
 
+#endif // !ANIMOWANEASSETY_H

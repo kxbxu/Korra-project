@@ -7,14 +7,13 @@ AnimatedAssets::AnimatedAssets()
 
 AnimatedAssets::~AnimatedAssets()
 {
+
 }
 
-void AnimatedAssets::update()
+const sf::Vector2f& AnimatedAssets::getPos()
 {
+	return this->sprite_ch.getPosition();
 }
 
-//void AnimatedAssets::render(sf::RenderTarget& target)
-//{
-//	target.draw(this->sprite_ch);
-//}
+
 

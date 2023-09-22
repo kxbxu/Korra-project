@@ -1,19 +1,189 @@
 #include "Player.h"
 
 
-Player::Player()
+Player::Player(float X, float Y)
     : AnimatedAssets() {
     this->initTexture();
     this->initSprite();
+    this->initVariables();
+    this->sprite_ch.setPosition(X, Y);
+}
+
+void Player::animationDown()
+{
+    frame_time += elapsed_time;
+    if (time_per_frame < frame_time) {
+        actual_Frame++;
+        frame_time = 0;
+        if (actual_Frame == Down.size()) {
+            actual_Frame = 0;
+        }
+        //std::cout << actual_Frame<<std::endl;  //w celu sprawdzenia dzialnia kodu
+        sprite_ch.setTextureRect(Down[actual_Frame]);
+    }
+}
+
+void Player::animationUp()
+{
+    frame_time += elapsed_time;
+    if (time_per_frame < frame_time) {
+        actual_Frame++;
+        frame_time = 0;
+        if (actual_Frame == Up.size()) {
+            actual_Frame = 0;
+        }
+        sprite_ch.setTextureRect(Up[actual_Frame]);
+    }
+}
+
+void Player::animationRight()
+{
+    frame_time += elapsed_time;
+    if (time_per_frame < frame_time) {
+        actual_Frame++;
+        frame_time = 0;
+        if (actual_Frame == Right.size()) {
+            actual_Frame = 0;
+        }
+        sprite_ch.setTextureRect(Right[actual_Frame]);
+    }
+}
+
+void Player::animationLeft()
+{
+    frame_time += elapsed_time;
+    if (time_per_frame < frame_time) {
+        actual_Frame++;
+        frame_time = 0;
+        if (actual_Frame == Left.size()) {
+            actual_Frame = 0;
+        }
+        sprite_ch.setTextureRect(Left[actual_Frame]);
+    }
+}
+
+void Player::isLoadedW()
+{
+    this->is_loadedW = false;
+    insideElapsedW = 0;
+}
+
+void Player::isLoadedE()
+{
+    this->is_loadedE = false;
+    insideElapsedE = 0;
+}
+
+void Player::isLoadedF()
+{
+    this->is_loadedF = false;
+    insideElapsedF = 0;
+}
+
+void Player::isLoadedA()
+{
+    this->is_loadedA = false;
+    insideElapsedA = 0;
+}
+
+const sf::FloatRect Player::getBounds() const
+{
+    return this->sprite_ch.getGlobalBounds();
+}
+
+bool Player::getWater()
+{
+    return is_loadedW;
+}
+
+bool Player::getEarth()
+{
+    return is_loadedE;
+}
+
+bool Player::getFire()
+{
+    return is_loadedF;
+}
+
+bool Player::getAir()
+{
+    return is_loadedA;
+}
+
+void Player::updateAttack()
+{
+    if (!is_loadedW) {
+        if (insideElapsedW < cooldownW) {
+            insideElapsedW += elapsed_time;
+        }
+        else {
+            is_loadedW = true;
+        }
+    }
+    
+    if (!is_loadedE) {
+        if (insideElapsedE < cooldownE) {
+            insideElapsedE += elapsed_time;
+        }
+        else {
+            is_loadedE = true;
+        }
+    }
+    
+    if (!is_loadedF) {
+        if (insideElapsedF < cooldownF) {
+            insideElapsedF += elapsed_time;
+        }
+        else {
+            is_loadedF = true;
+        }
+    }
+    
+    if (!is_loadedA) {
+        if (insideElapsedA < cooldownA) {
+            insideElapsedA += elapsed_time;
+        }
+        else {
+            is_loadedA = true;
+        }
+    }
+    
+}
+
+void Player::update() 
+{
+    this->updateAttack();
+}
+
+void Player::move(const float directionX, const float directionY)
+{
+    this->sprite_ch.move(this->movementSpeed*directionX*elapsed_time,this->movementSpeed*directionY*elapsed_time);
+}
+
+void Player::timeChecking()
+{
+    elapsed_time = this->clock.getElapsedTime().asSeconds();
+    this->clock.restart();
+}
+
+void Player::initTexture()
+{
+    if (!this->texture_ch.loadFromFile("player_t.png")) {
+        std::cout << "ERROR->TEXTURE CANNOT BE LOADED ";
+    }
+}
+
+void Player::initSprite()
+{
+    this->sprite_ch.setTexture(this->texture_ch);
     sprite_ch.setTextureRect(sf::IntRect(0, 0, 65, 80));
+}
 
-    //setTextureRect(sf::IntRect(0, 0, 65, 80));
-    //this->texture_ch.loadFromFile("player_t.png");
-    //this->sprite_ch.setTexture(this->texture_ch);
-    //this->sprite_ch.setTextureRect(sf::IntRect(0, 0, 65, 80));
-
-    this->movementSpeed = 300000.f;
-    this->time_per_frame = 0.3f;    
+void Player::initVariables()
+{
+    this->movementSpeed = 300.f;                //5.5f;
+    this->time_per_frame = 0.2f;
     actual_Frame = 0;
     Down.emplace_back(sf::IntRect(0, 0, 64, 80));
     Down.emplace_back(sf::IntRect(65, 0, 64, 80));
@@ -27,83 +197,20 @@ Player::Player()
     Up.emplace_back(sf::IntRect(0, 240, 64, 80));
     Up.emplace_back(sf::IntRect(65, 240, 64, 80));
     Up.emplace_back(sf::IntRect(130, 240, 64, 80));
-}
 
-void Player::animationDown()
-{
-    elapsed_time = elapsed_time + clock.getElapsedTime().asSeconds();
-    this->clock.restart();
-    if (time_per_frame < elapsed_time) {
-        actual_Frame++;
-        elapsed_time = 0;
-        if (actual_Frame == Down.size()) {
-            actual_Frame = 0;
-        }
-        //std::cout << actual_Frame<<std::endl;  //w celu sprawdzenia dziania kodu
-        sprite_ch.setTextureRect(Down[actual_Frame]);
-    }
-}
-
-void Player::animationUp()
-{
-    elapsed_time = elapsed_time + clock.getElapsedTime().asSeconds();
-    this->clock.restart();
-    if (time_per_frame < elapsed_time) {
-        actual_Frame++;
-        elapsed_time = 0;
-        if (actual_Frame == Up.size()) {
-            actual_Frame = 0;
-        }
-        sprite_ch.setTextureRect(Up[actual_Frame]);
-    }
-}
-
-void Player::animationRight()
-{
-    elapsed_time = elapsed_time + clock.getElapsedTime().asSeconds();
-    this->clock.restart();
-    if (time_per_frame < elapsed_time) {
-        actual_Frame++;
-        elapsed_time = 0;
-        if (actual_Frame == Right.size()) {
-            actual_Frame = 0;
-        }
-        sprite_ch.setTextureRect(Right[actual_Frame]);
-    }
-}
-
-void Player::animationLeft()
-{
-    elapsed_time = elapsed_time + clock.getElapsedTime().asSeconds();
-    this->clock.restart();
-    if (time_per_frame < elapsed_time) {
-        actual_Frame++;
-        elapsed_time = 0;
-        if (actual_Frame == Left.size()) {
-            actual_Frame = 0;
-        }
-        sprite_ch.setTextureRect(Left[actual_Frame]);
-    }
-}
-
-void Player::move(const float directionX, const float directionY,const float deltaTime)
-{
-    float distanceX = this->movementSpeed * directionX * deltaTime;
-    float distanceY = this->movementSpeed * directionY * deltaTime;
-
-    this->sprite_ch.move(distanceX, distanceY);
-}
-
-void Player::initTexture()
-{
-    if (!this->texture_ch.loadFromFile("player_t.png")) {
-        std::cout << "ERROR->TEXTURE CANNOT BE LOADED ";
-    }
-}
-
-void Player::initSprite()
-{
-    this->sprite_ch.setTexture(this->texture_ch);
+    //cooldowns
+    cooldownF = 1.4f;              //fire
+    insideElapsedF = 0.f;           
+    is_loadedF = true;
+    cooldownE = 3.f;                 //earth
+    insideElapsedE = 0.f;
+    is_loadedE = true;
+    cooldownA = 5.f;                   //air
+    insideElapsedA = 0.f;
+    is_loadedA = true;
+    cooldownW = 0.25f;                 //water
+    insideElapsedW = 0.f;
+    is_loadedW = true;
     
 }
 

@@ -86,9 +86,47 @@ void Player::isLoadedA()
     insideElapsedA = 0;
 }
 
+void Player::LoseHp(float dmg)
+{
+    this->hp -= dmg;
+
+    if (this->hp < 0) {
+        this->hp = 0;
+    }
+   
+}
+
+void Player::addHp(float HP)
+{
+    this->hp += HP;
+    if (this->hp >= this->maxHp) {
+        this->hp = this->maxHp;
+    }
+}
+
 const sf::FloatRect Player::getBounds() const
 {
     return this->sprite_ch.getGlobalBounds();
+}
+
+const float Player::getDamage() const
+{
+    return this->collisionDmg;
+}
+
+const float& Player::getHp() const
+{
+    return this->hp;
+}
+
+const float& Player::getHpMax() const
+{
+    return this->maxHp; 
+}
+
+bool Player::isAlive()
+{
+    return this->hp > 0;
 }
 
 bool Player::getWater()
@@ -208,10 +246,14 @@ void Player::initVariables()
     cooldownA = 5.f;                   //air
     insideElapsedA = 0.f;
     is_loadedA = true;
-    cooldownW = 0.25f;                 //water
+    cooldownW = 0.2f;                 //water
     insideElapsedW = 0.f;
     is_loadedW = true;
-    
+    //collision damage
+    collisionDmg = 1.f;
+    //
+    maxHp = 300;
+    hp = maxHp;
 }
 
 void Player::render(sf::RenderWindow& target) {

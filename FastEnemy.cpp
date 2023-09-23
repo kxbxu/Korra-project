@@ -2,11 +2,12 @@
 
 void FastEnemy::initVariables()
 {
-	this->movementSpeed = 100.f;
-	this->hpMax = 90;
-	this->hp = 90;
-	this->dmg = 20;
+	this->movementSpeed = 110.f;
+	this->hpMax = 130;
+	this->hp = 130;
+	this->dmg = 2.f;
 	this->point = 10;
+	this->movementSpeedmemory = this->movementSpeed;
 
 	this->isburn = false;
 	this->isslowness = false;

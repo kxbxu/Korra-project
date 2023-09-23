@@ -7,6 +7,7 @@
 class Player: public AnimatedAssets
 {
 private:
+	//animation
 	std::vector<sf::IntRect> Up;
 	std::vector<sf::IntRect> Down;
 	std::vector<sf::IntRect> Right;
@@ -17,6 +18,7 @@ private:
 	sf::Clock clock;
 	int actual_Frame;
 	Sprite sprite;
+	//attacks cooldown
 	float cooldownF;
 	float insideElapsedF;
 	bool is_loadedF;
@@ -29,12 +31,16 @@ private:
 	float cooldownW;
 	float insideElapsedW;
 	bool is_loadedW;
+	//collision damage
+	float collisionDmg;
+	//player hp
+	float hp;
+	float maxHp;
 
 	//private functions
 	void initTexture();
 	void initSprite();
 	void initVariables();
-
 
 public:
 	Player(float X,float Y);
@@ -48,8 +54,17 @@ public:
 	void isLoadedF();
 	void isLoadedA();
 
-	//Accesor
+	void LoseHp(float dmg);
+	void addHp(float HP);
+
+	//Accesor                        should be put in AnimatedAssets
 	const sf::FloatRect getBounds() const;
+	const float getDamage() const;
+	const float& getHp() const;
+	const float& getHpMax() const;
+
+	//hp>0?         //also should be put in AnimatedAssets
+	bool isAlive();
 	
 	bool getWater();
 	bool getEarth();

@@ -2,11 +2,12 @@
 
 void CommonEnemy::initVariables()
 {
-	this->movementSpeed = 100.f;
-	this->hpMax = 70;
-	this->hp = 70;
-	this->dmg = 20;
+	this->movementSpeed = 60.f;
+	this->hpMax = 200;
+	this->hp = 200;
+	this->dmg = 1.;
 	this->point = 5;
+	this->movementSpeedmemory = this->movementSpeed;
 
 	this->isburn = false;
 	this->isslowness = false;

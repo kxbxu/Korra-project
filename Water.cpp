@@ -5,5 +5,5 @@ Water::Water(sf::Texture* texture, float posX, float posY, float dirX, float dir
 {
 	shape.setScale(0.45f, 0.45f);
 	this->movementspeed = 500.f;
-	this->dmg = 30;
+	this->dmg = 35;
 }

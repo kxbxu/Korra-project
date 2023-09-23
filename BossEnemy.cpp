@@ -3,10 +3,11 @@
 void BossEnemy::initVariables()
 {
 	this->movementSpeed = 100.f;
-	this->hpMax = 1000;
+	this->hpMax = 10000;
 	this->hp = 1000;
 	this->dmg = 50;
-	this->point = 100;
+	this->point = 5000;
+	this->movementSpeedmemory = this->movementSpeed;
 
 	this->isburn        =false; 
 	this->isslowness	=false;

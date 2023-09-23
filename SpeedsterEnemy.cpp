@@ -3,10 +3,11 @@
 void SpeedsterEnemy::initVariables()
 {
 	this->movementSpeed = 600.f;
-	this->hpMax = 100;
-	this->hp = 100;
-	this->dmg = 50;
+	this->hpMax = 90;
+	this->hp = 90;
+	this->dmg = 80;
 	this->point = 20;
+	this->movementSpeedmemory=this->movementSpeed;
 
 	this->isburn = false;
 	this->isslowness = false;
@@ -54,6 +55,6 @@ SpeedsterEnemy::SpeedsterEnemy(sf::Texture* texture, float pos_x, float pos_y,fl
 	:Enemy(texture,pos_x,pos_y,dirX,dirY)
 {
 	this->initVariables();
-	this->sprite_ch.setScale(5.f, 5.f);
+	this->sprite_ch.setScale(3.f, 3.f);
 	this->speedDirection(dirX, dirY);
 }

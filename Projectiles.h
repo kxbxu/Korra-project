@@ -26,7 +26,7 @@ public:
 	bool is_reloaded(float elapsed);
 
 
-	//accessor
+	//accessor                        / byloby lepiej umiescic funkcje getBounds();getDamage w klasie AnimatedAssets/
 	const sf::FloatRect getBounds() const;
 	const float getDamage() const;
 

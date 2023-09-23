@@ -86,11 +86,35 @@ void Enemy::burn(float deltaTime)
 
 void Enemy::slowness(float deltaTime)
 {
+    if (slowness_elapsed >= 4) {
+        this->slowness_elapsed = 0;
+        isslowness = false;
+        movementSpeed = movementSpeedmemory;
+    }
+    else {
+        slowness_elapsed += deltaTime;
+        movementSpeed = movementSpeedmemory * 0.5;
+    }
 }
 
 const sf::FloatRect Enemy::getBounds() const
 {
     return this->sprite_ch.getGlobalBounds();
+}
+
+const int& Enemy::getPoints() const
+{
+    return this->point;
+}
+
+const float& Enemy::getDmg() const
+{
+    return this->dmg;
+}
+
+const float& Enemy::getMaxHp() const
+{
+    return this->hpMax;
 }
 
 void Enemy::knockback(float deltaTime)

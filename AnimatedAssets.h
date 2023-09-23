@@ -34,6 +34,7 @@ protected:
 	sf::Vector2f velocity_ch;
 
 	float movementSpeed;
+	float movementSpeedmemory;
 
 
 	//virtual void handleColission() = 0;								//colission handling *in process*

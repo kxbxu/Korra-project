@@ -62,6 +62,10 @@ public:
 
     //Accesor
     const sf::FloatRect getBounds() const;
+    const int& getPoints() const;
+    const float& getDmg() const;
+    const float& getMaxHp() const;         //using to lose all hp after collision between player and speedster enemy /put here bcs it's seems to be usefull/
+
 
 
 };

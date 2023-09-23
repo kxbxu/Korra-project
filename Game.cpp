@@ -5,7 +5,8 @@
 
 void Game::initwindow()
 {
-	this->window = new sf::RenderWindow(sf::VideoMode(1000,750), "Korra", sf::Style::Close | sf::Style::Titlebar);
+	this->window = new sf::RenderWindow(sf::VideoMode(1200,900), "Korra", sf::Style::Close | sf::Style::Titlebar);   //1000 750 def
+	this->window->setPosition(sf::Vector2i(400, 50));
 	this->window->setFramerateLimit(60);
 	this->window->setVerticalSyncEnabled(false);
 }
@@ -47,6 +48,52 @@ void Game::initTexture()
 
 }
 
+void Game::initGUI()
+{
+	//load font
+	if (!this->font.loadFromFile("Fonts/AlexandriaFLF.ttf")) {
+		std::cout << "Fonts cannot be loaded" << std::endl;
+	}
+
+	//init pointtext
+	this->pointText.setFont(this->font);
+	this->pointText.setCharacterSize(40);
+	this->pointText.setFillColor(sf::Color::Black);
+	this->pointText.setOutlineThickness(2);
+	this->pointText.setString("test");
+	this->pointText.setPosition(sf::Vector2f(this->window->getSize().x - 350, 0));
+	
+	
+	this->gameOverText.setFont(this->font);
+	this->gameOverText.setCharacterSize(100);
+	this->gameOverText.setFillColor(sf::Color::Red);
+	this->gameOverText.setOutlineThickness(5);
+	this->gameOverText.setString("GAME OVER");
+	this->gameOverText.setPosition(sf::Vector2f(this->window->getSize().x/2.f-this->gameOverText.getGlobalBounds().width/2.f, this->window->getSize().y/2.f- this->gameOverText.getGlobalBounds().height / 2.f));
+
+	// init player GUI
+
+	this->playerHpBar.setSize(sf::Vector2f(300.f, 20.f));
+	this->playerHpBar.setFillColor(sf::Color::Red);
+	this->playerHpBar.setPosition(sf::Vector2f(20.f, 20.f));
+
+	this->playerHpBarBack = this->playerHpBar;
+	this->playerHpBarBack.setFillColor(sf::Color(25, 25, 25, 200));
+
+}
+
+void Game::initWorld()
+{
+	this->worldBackgroundTex.loadFromFile("background.png");
+	this->WorldBackground.setTexture(this->worldBackgroundTex);
+	this->WorldBackground.setColor(sf::Color::Cyan);
+}
+
+void Game::initSystems()
+{
+	this->points = 0;
+}
+
 void Game::initPlayer()
 {
 	this->player = new Player(this->window->getSize().x/2,this->window->getSize().y/2);      //spawn on the middle of window *left, top edge of sprite*
@@ -55,12 +102,18 @@ void Game::initPlayer()
 void Game::initEnemies()
 {
 	this->Check_vector = 5;             //check actual amount of enemies vector after 4s
-	this->mobsNumberMax = 30;           // max amount of mobs on the map
+	this->mobsNumberMax = 25;           // max amount of mobs on the map
 	this->mobsNumberMin = 10;             // minimal amount of mobs on the map
 	this->elaped_check = Check_vector;    
 	this->Change_number = 20;             //time after amount of enemies will be changed
 	this->elapsed_number = 0;
-	this->mobsNumberActual = this->mobsNumberMin;
+	this->mobsNumberActual = this->mobsNumberMin-3;
+}
+
+void Game::initCrates()
+{
+	this->lootTime = 15;
+	this->elapsed_loot = this->lootTime;
 }
 
 void Game::spawnAsset()
@@ -90,29 +143,58 @@ void Game::spawnAsset()
 
 }
 
+void Game::spawnCrate()
+{
+	if (this->elapsed_loot >= this->lootTime) {
+		std::cout << "looot nadchodzi" << "/n";
+		int x;
+		int y;
+		do {
+			x = rand() % this->window->getSize().x + 1;
+			y = rand() % this->window->getSize().y + 1;
+		} while (abs(x - player->getPos().x) < 200 && abs(y - player->getPos().y) < 200);        //rand position at least 200 pixels from player
+
+		crates.emplace_back(new Crate(x, y));
+
+		this->elapsed_loot = 0;
+	}
+	else {
+		this->elapsed_loot += this->ElapsedTime;
+	}
+}
+
 Game::Game()
 {
 	this->initwindow();
 	this->initTexture();
+	this->initWorld();
+	this->initGUI();
+	this->initSystems();
 	this->initPlayer();
 	this->initEnemies();
-
+	this->initCrates();
 }
 
 Game::~Game()
 { 
 	delete this->window;
 	delete this->player;
+	
 
 	//delete textures
 	for (auto& i : this->textures) {
 		delete i.second;
 	}
+	//delete projectiles
 	for (auto* i : this->projectiles) {
 		delete i;
 	}
-
+	//delete enemies
 	for (auto* i : this->enemies) {
+		delete i;
+	}
+	//delete crates
+	for (auto* i : this->crates) {
 		delete i;
 	}
 }
@@ -124,7 +206,13 @@ void Game::run()
 	while (this->window->isOpen()) {
 		this->ElapsedTime = clock.getElapsedTime().asSeconds();
 		clock.restart();
-		this->update();
+
+		this->updatePollEvents();
+
+		//if (this->player->isAlive()) {
+			this->update();
+		//}
+		
 		this->render();
 	}
 		
@@ -249,6 +337,53 @@ void Game::updateInput()
 
 }
 
+void Game::updateGUI()
+{
+	std::stringstream ss;
+	ss << "Points : " << this->points;
+	this->pointText.setString(ss.str());
+
+	//update player GUI
+	this->playerHpBar.setSize(sf::Vector2f(300.f * player->getHp() / player->getHpMax(), this->playerHpBar.getSize().y));
+	//this->player->LoseHp(0.1f); testing
+}
+
+void Game::updateWorld()
+{
+}
+
+void Game::updateCollision()
+{
+	for (int i = 0; i < enemies.size(); ++i) {
+		
+		if (this->enemies[i]->getBounds().intersects(this->player->getBounds())) {
+
+			if (SpeedsterEnemy* speedster = dynamic_cast<SpeedsterEnemy*>(enemies[i])) {
+				this->player->LoseHp(enemies[i]->getDmg());
+				enemies[i]->LoseHp(enemies[i]->getMaxHp());
+			}
+			else {
+				this->player->LoseHp(enemies[i]->getDmg());
+			}
+		}
+	}
+	//crate loots effects
+	for (int i = 0; i < crates.size(); ++i) {
+		if (this->crates[i]->getBounds().intersects(this->player->getBounds())) {
+			if (dynamic_cast<Heart*>(crates[i])) {                                         ///add hp
+				this->player->addHp(150.f);
+				delete this->crates[i];
+				this->crates.erase(this->crates.begin() + i);
+			}
+			else if (dynamic_cast<Bomb*>(crates[i])) {
+				this->enemies.clear();                                                  //clear map out of enemies  until next vector checking (4s)
+				delete this->crates[i];
+				this->crates.erase(this->crates.begin() + i);
+			}
+		}
+	}
+}
+
 void Game::updateProjectiles()
 {
 	unsigned counter=0;
@@ -283,6 +418,25 @@ void Game::updateProjectiles()
 		}
 
 		++counter;
+
+		//destroying crate
+		for (int k = 0; k < crates.size();k++) {
+			if (projectile->getBounds().intersects(crates[k]->getBounds())) {
+				if (dynamic_cast<Crate*>(crates[k])) {
+					int l = rand() % 2;
+					if (l == 0) {
+						crates.emplace_back(new Heart(crates[k]->getPos().x, crates[k]->getPos().y));
+					}
+					else
+					{
+						crates.emplace_back(new Bomb(crates[k]->getPos().x, crates[k]->getPos().y));
+					}
+					delete this->crates[k];
+					this->crates.erase(this->crates.begin() + k);
+
+				}
+			}
+		}
 	}
 }
 
@@ -306,7 +460,7 @@ void Game::updateEnemies()
 		elapsed_number += ElapsedTime;
 	}
 
-	// removing enemy being out of screen size +100
+	// removing enemy being out of screen size +100  and enemies with <=0 hp
 
 	unsigned counter = 0;
 	for (auto* enemy : this->enemies) {
@@ -342,6 +496,7 @@ void Game::updateEnemies()
 		//checking hp
 
 		else if (!enemy->isAlive()) {
+			this->points += enemy->getPoints();    //if enemy is killed by our projectile player get points(enemy being put of screen don't give us points!)
 			delete this->enemies.at(counter);
 			this->enemies.erase(this->enemies.begin() + counter);
 			--counter;
@@ -351,9 +506,19 @@ void Game::updateEnemies()
 	}
 }
 
+void Game::updateCrates()
+{
+	this->spawnCrate();
+}
+
 void Game::updateCombat()
 {
 	for (int i = 0; i < enemies.size(); ++i) {
+		//collision with players
+		if (this->enemies[i]->getBounds().intersects(this->player->getBounds())) {
+			this->enemies[i]->LoseHp(this->player->getDamage());
+		}
+		//collision with projectiles
 		for (size_t k = 0; k < this->projectiles.size(); k++) {
 			if (this->enemies[i]->getBounds().intersects(this->projectiles[k]->getBounds())) {
 				//mob losing hp
@@ -388,17 +553,36 @@ void Game::updateCombat()
 
 void Game::update()
 {
-	this->updatePollEvents();
 	this->updateInput();
 	this->player->update();
 	this->updateProjectiles();
 	this->updateEnemies();
+	this->updateCrates();
 	this->updateCombat();
+	this->updateCollision();
+	this->updateGUI();
+	this->updateWorld();
+}
+
+void Game::renderGUI()
+{
+	this->window->draw(this->pointText);
+	this->window->draw(this->playerHpBarBack);
+	this->window->draw(this->playerHpBar);
+
+}
+
+void Game::renderWorld()
+{
+	this->window->draw(WorldBackground);
 }
 
 void Game::render()
 {
 	this->window->clear();
+
+	//draw world
+	this->renderWorld();
 
 	//draw all all stuffs
 	this->player->render(*this->window);
@@ -410,6 +594,16 @@ void Game::render()
 	for (auto *enemy : this->enemies) {
 		enemy->render(this->window);
 	}
+
+	for (auto* crate : this->crates) {
+		crate->render(this->window);
+	}
+
+	this->renderGUI();
+
+	//if (!player->isAlive()) {
+		//this->window->draw(this->gameOverText);
+	//}
 
 	this->window->display();
 }

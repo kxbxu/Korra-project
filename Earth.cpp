@@ -4,5 +4,5 @@ Earth::Earth(sf::Texture* texture, float posX, float posY, float dirX, float dir
 	:Projectiles(texture,posX,posY,dirX,dirY)
 {
 	this->movementspeed = 250.f;
-	this->dmg = 1.5;
+	this->dmg = 2;
 }

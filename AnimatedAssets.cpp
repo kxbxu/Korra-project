@@ -2,7 +2,8 @@
 
 AnimatedAssets::AnimatedAssets()
 {
-	
+	this->movementSpeed = 0;
+	this->movementSpeedmemory = 0;
 }
 
 AnimatedAssets::~AnimatedAssets()

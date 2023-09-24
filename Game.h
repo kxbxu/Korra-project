@@ -38,6 +38,7 @@ private:
 	sf::Font font;
 	sf::Text pointText;
 	sf::Text gameOverText;
+	sf::Text winText;
 
 	//World
 	sf::Sprite WorldBackground;
@@ -72,6 +73,19 @@ private:
 	 float elapsed_number;
 	std::vector<Enemy*> enemies;
 
+	//Enemies wave 
+	float waveTime;           //initialization in Initenemies()
+	float elapsed_wave;
+	bool spawn_boss;
+	//checking win
+	bool Boss_isAlive;
+
+	
+	//private functions->wave
+	void updatewave();
+	bool is_wave();
+
+
 
 	//Private functions
 	void initwindow();
@@ -91,6 +105,9 @@ public:
 	//constructor and destructor
 	Game(); 
 	virtual ~Game();
+
+	//Acessor
+	const int getPoints() const;
 
 	//functions
 

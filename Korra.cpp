@@ -1,4 +1,4 @@
-﻿#include "Game.h"
+﻿#include "Menu.h"
 
 int main()
 {
@@ -7,11 +7,17 @@ int main()
    
 // initialize object
    
-    Game game;
+    Menu menu;
     
+    while (menu.getWindowIsOpen())
+    {
+        menu.Update();
+        menu.Render();
+    }
+
     
 // game loop
-    game.run();
+    
 
 
     return 0;

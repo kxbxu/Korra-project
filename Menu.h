@@ -1,38 +1,44 @@
 #pragma once
+#include "game.h"
 
-#include <SFML/Graphics.hpp>
-#include <iostream>
-#include <vector>
-#include <string>
+class Menu
+{
+private:
 
-/*
-class Menu {  //main menu of the game
-    int pos;
-    bool pressed, theselect;
+	sf::RenderWindow* window;
+	sf::VideoMode vm;
+	sf::Event ev;
 
-    sf::RenderWindow* window;
-    sf::RectangleShape* winclose;
-    sf::Font* font;
-    sf::Texture* image;
-    sf::Sprite* bg;
+	sf::Sprite background;
+	sf::Texture backgroundTex;
 
-    sf::Vector2i pos_mouse;
-    sf::Vector2f mouse_coord;
+	sf::Font font;
+	sf::Text text;
+	sf::Text text1;
+	sf::Text text2;
+	sf::Text text3;
 
-    std::vector<const char*> options;
-    std::vector<sf::Vector2f> coords;
-    std::vector<sf::Text> texts;
-    std::vector<std::size_t> sizes;
+	int points;
+	bool startgame;
 
-protected:
-    void set_values();
-    void loop_events();
-    void draw_all();
+	void okno();
+	void pullevents();
+	void StartGame();
+	void Text();
 
 public:
-    Menu();
-    ~Menu();
-    void run_menu();
-};
 
-*/
+	Menu();
+
+	const bool getWindowIsOpen() const;
+
+	void Update();
+
+	void Render();
+
+	void PrintPoints();
+
+
+
+
+};

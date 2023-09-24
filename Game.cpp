@@ -3,6 +3,16 @@
 
 
 
+void Game::updatewave()
+{
+	this->elapsed_wave += ElapsedTime;
+}
+
+bool Game::is_wave()
+{
+	return this->waveTime >= this->elapsed_wave;
+}
+
 void Game::initwindow()
 {
 	this->window = new sf::RenderWindow(sf::VideoMode(1200,900), "Korra", sf::Style::Close | sf::Style::Titlebar);   //1000 750 def
@@ -63,13 +73,20 @@ void Game::initGUI()
 	this->pointText.setString("test");
 	this->pointText.setPosition(sf::Vector2f(this->window->getSize().x - 350, 0));
 	
-	
+	//init game over trxt
 	this->gameOverText.setFont(this->font);
 	this->gameOverText.setCharacterSize(100);
 	this->gameOverText.setFillColor(sf::Color::Red);
 	this->gameOverText.setOutlineThickness(5);
 	this->gameOverText.setString("GAME OVER");
 	this->gameOverText.setPosition(sf::Vector2f(this->window->getSize().x/2.f-this->gameOverText.getGlobalBounds().width/2.f, this->window->getSize().y/2.f- this->gameOverText.getGlobalBounds().height / 2.f));
+	//init wintext
+	this->winText.setFont(this->font);
+	this->winText.setCharacterSize(100);
+	this->winText.setFillColor(sf::Color::Green);
+	this->winText.setOutlineThickness(5);
+	this->winText.setString("YOU WIN!");
+	this->winText.setPosition(sf::Vector2f(this->window->getSize().x / 2.f - this->winText.getGlobalBounds().width / 2.f, this->window->getSize().y / 2.f - this->winText.getGlobalBounds().height / 2.f));
 
 	// init player GUI
 
@@ -102,12 +119,18 @@ void Game::initPlayer()
 void Game::initEnemies()
 {
 	this->Check_vector = 5;             //check actual amount of enemies vector after 4s
-	this->mobsNumberMax = 25;           // max amount of mobs on the map
-	this->mobsNumberMin = 10;             // minimal amount of mobs on the map
+	this->mobsNumberMax = 20;           // max amount of mobs on the map
+	this->mobsNumberMin = 8;             // minimal amount of mobs on the map
 	this->elaped_check = Check_vector;    
 	this->Change_number = 20;             //time after amount of enemies will be changed
 	this->elapsed_number = 0;
-	this->mobsNumberActual = this->mobsNumberMin-3;
+	this->mobsNumberActual = this->mobsNumberMin-2;
+	//wave stuff
+	this->waveTime = 90;                               //change here
+	this->elapsed_wave = 0;
+	this->spawn_boss = true;
+	this->Boss_isAlive = true;
+
 }
 
 void Game::initCrates()
@@ -199,6 +222,11 @@ Game::~Game()
 	}
 }
 
+const int Game::getPoints() const
+{
+	return this->points;
+}
+
 
 void Game::run()
 {
@@ -209,9 +237,9 @@ void Game::run()
 
 		this->updatePollEvents();
 
-		//if (this->player->isAlive()) {
+		if (this->player->isAlive()&&this->Boss_isAlive) {
 			this->update();
-		//}
+		}
 		
 		this->render();
 	}
@@ -350,6 +378,7 @@ void Game::updateGUI()
 
 void Game::updateWorld()
 {
+	//may be used in the future 
 }
 
 void Game::updateCollision()
@@ -376,7 +405,9 @@ void Game::updateCollision()
 				this->crates.erase(this->crates.begin() + i);
 			}
 			else if (dynamic_cast<Bomb*>(crates[i])) {
-				this->enemies.clear();                                                  //clear map out of enemies  until next vector checking (4s)
+				if (is_wave()) {
+					this->enemies.clear();
+				}													 //clear map out of enemies(but not boss)  until next vector checking (4s)                                              
 				delete this->crates[i];
 				this->crates.erase(this->crates.begin() + i);
 			}
@@ -442,13 +473,20 @@ void Game::updateProjectiles()
 
 void Game::updateEnemies()
 {
-	//spawn mobs to keep actual number of mobs
-	if (this->elaped_check >= this->Check_vector) {
-		this->spawnAsset();
-		elaped_check = 0;
+	//spawn mobs to keep actual number of mobs during wave
+	if (this->is_wave()) {
+		if (this->elaped_check >= this->Check_vector) {
+			this->spawnAsset();
+			elaped_check = 0;
+		}
+		else {
+			elaped_check += ElapsedTime;
+		}
 	}
-	else {
-		elaped_check += ElapsedTime;
+	else if (this->spawn_boss) {
+		this->spawn_boss = false;
+		this->enemies.clear();
+		this->enemies.emplace_back(new BossEnemy(this->textures["BOSS"], this->window->getSize().x / 2, this->window->getSize().y / 2, this->player->getPos().x, this->player->getPos().y));
 	}
 
 	//changing actual number of mobs
@@ -496,10 +534,14 @@ void Game::updateEnemies()
 		//checking hp
 
 		else if (!enemy->isAlive()) {
+			if (BossEnemy* boss = dynamic_cast<BossEnemy*>(enemy)) {
+				this->Boss_isAlive = false;
+			}
 			this->points += enemy->getPoints();    //if enemy is killed by our projectile player get points(enemy being put of screen don't give us points!)
 			delete this->enemies.at(counter);
 			this->enemies.erase(this->enemies.begin() + counter);
 			--counter;
+			
 		}
 
 		++counter;
@@ -536,9 +578,15 @@ void Game::updateCombat()
 				}
 
 				else if (Air* air = dynamic_cast<Air*>(projectiles[k])) {
-					this->enemies[i]->is_knockback();
-					//delete this->projectiles[k];
-					//this->projectiles.erase(this->projectiles.begin() + k);
+					if (BossEnemy* boss = dynamic_cast<BossEnemy*>(enemies[i])) {         //Boss dont get many knockbacks - only 1 
+						this->enemies[i]->is_knockback();
+						delete this->projectiles[k];
+						this->projectiles.erase(this->projectiles.begin() + k);
+					}
+
+					else {
+						this->enemies[i]->is_knockback();
+					}
 				}
 
 				else if (Water* water = dynamic_cast<Water*>(projectiles[k])) {
@@ -562,6 +610,7 @@ void Game::update()
 	this->updateCollision();
 	this->updateGUI();
 	this->updateWorld();
+	this->updatewave();
 }
 
 void Game::renderGUI()
@@ -601,9 +650,13 @@ void Game::render()
 
 	this->renderGUI();
 
-	//if (!player->isAlive()) {
-		//this->window->draw(this->gameOverText);
-	//}
+	if (!player->isAlive()) {
+		this->window->draw(this->gameOverText);
+	}
+
+	if (!Boss_isAlive) {
+		this->window->draw(this->winText);
+	}
 
 	this->window->display();
 }

@@ -4,7 +4,7 @@ void BossEnemy::initVariables()
 {
 	this->movementSpeed = 100.f;
 	this->hpMax = 10000;
-	this->hp = 1000;
+	this->hp = 10000;
 	this->dmg = 50;
 	this->point = 5000;
 	this->movementSpeedmemory = this->movementSpeed;
@@ -44,7 +44,7 @@ void BossEnemy::speedDirection(float x, float y)
 			// for x cos(arctan(delta_x/delta_y))*delta_x/|delta_x|      
 			// for y sin(arctan(delta_x/delta_y))*delta_x/|delta_x| 
 		}
-		changeDirection = false;
+		changeDirection = true;
 
 	}
 }
